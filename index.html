@@ -1,86 +1,53 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>FancyMenu Integration</title>
-</head>
-<body>
-    <h1>Game Controls</h1>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FLW</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="bg-[#0d0d11] min-h-screen items-center justify-center flex">
+    <div
+      class="bg-[#0e0e1f] p-5 border-2 border-[#1a1a2e] rounded-xl flex flex-col items-center gap-4"
+    >
+      <img
+        class="w-50 object-contain"
+        src="https://i.imgur.com/P5sK4iz.png"
+        alt="logo"
+      />
 
-    <button onclick="quitGame()">Quit Game</button>
-    <button onclick="openTitleScreen()">Title Screen</button>
-    <button onclick="disconnectFromServer()">Disconnect</button>
-    <button onclick="setVariable()">Set Variable</button>
-    <button onclick="loadPlaceholders()">Load Placeholders</button>
+      <button
+        onclick="joinServer()"
+        class="relative overflow-hidden bg-[#1a1a2e] text-white px-4 py-2 rounded-md hover:bg-[#2a2a3e] transition-all duration-300 w-full cursor-pointer group"
+      >
+        <span
+          class="block transition-all duration-300 group-hover:opacity-0 group-hover:-translate-y-2"
+        >
+          Войти на FLW
+        </span>
 
-    <div id="placeholderOutput" style="margin-top:16px;font-family:monospace"></div>
+        <span
+          class="absolute inset-0 flex items-center justify-center opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0"
+        >
+          Заходи заебал!
+        </span>
+      </button>
 
-    <script>
-        function getActions() {
-            if (typeof fancymenu === 'undefined') {
-                console.warn('FancyMenu API is not available yet.');
-                return null;
-            }
-            return fancymenu.actions || fancymenu;
+      <script>
+        function joinServer() {
+          if (typeof fancymenu === "undefined") {
+            console.warn("FancyMenu API not ready");
+            return;
+          }
+
+          fancymenu.actions.executeWithCallback(
+            "joinserver",
+            "play.flwserver.ru:25565", // <-- ТВОЙ IP
+            () => console.log("Connecting..."),
+            (err) => console.error("Connection failed:", err),
+          );
         }
-
-        function quitGame() {
-            const actions = getActions();
-            if (!actions) return;
-            actions.execute('quitgame');
-        }
-
-        function openTitleScreen() {
-            const actions = getActions();
-            if (!actions) return;
-            actions.executeWithCallback(
-                'opengui',
-                'title_screen',
-                () => console.log('Title screen opened!'),
-                err => console.error('Error:', err)
-            );
-        }
-
-        function disconnectFromServer() {
-            const actions = getActions();
-            if (!actions) return;
-            actions.execute('disconnect_server_or_world', 'title_screen');
-        }
-
-        function setVariable() {
-            const actions = getActions();
-            if (!actions) return;
-            var varName = prompt('Variable name:');
-            var varValue = prompt('Variable value:');
-            if (varName && varValue) {
-                actions.execute('set_variable', varName + ':' + varValue);
-            }
-        }
-
-        function loadPlaceholders() {
-            if (typeof fancymenu === 'undefined' || !fancymenu.placeholders) {
-                console.warn('FancyMenu placeholder API is not available yet.');
-                return;
-            }
-
-            Promise.all([
-                fancymenu.placeholders.get('playername'),
-                fancymenu.placeholders.getWithVars('uptime_duration', 'output_as_millis:false'),
-                fancymenu.placeholders.getWithVars(
-                    'split_text',
-                    'input:apple|banana|carrot',
-                    'regex:\\|',
-                    'max_parts:-1',
-                    'split_index:1'
-                )
-            ]).then(([playerName, uptimeSeconds, secondFruit]) => {
-                document.getElementById('placeholderOutput').textContent =
-                    'Player: ' + playerName + '\n' +
-                    'Uptime (seconds): ' + uptimeSeconds + '\n' +
-                    'Second fruit: ' + secondFruit;
-            }).catch(error => {
-                console.error('Placeholder request failed:', error);
-            });
-        }
-    </script>
-</body>
+      </script>
+    </div>
+  </body>
 </html>
